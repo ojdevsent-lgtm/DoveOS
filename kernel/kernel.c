@@ -1,5 +1,4 @@
-#include <stdint.h>
-#include <stddef.h>
+#include "include/types.h"
 
 #define VGA_MEMORY ((volatile uint16_t*)0xB8000)
 #define VGA_WIDTH 80
