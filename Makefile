@@ -5,11 +5,19 @@ CC := gcc
 LD := ld
 AS := gcc
 
-CFLAGS := -m32 -ffreestanding -fno-stack-protector -fno-pie -nostdlib -nostdinc -Wall -Wextra -Werror -O2
+CFLAGS := -m32 -ffreestanding -fno-stack-protector -fno-pie -nostdlib -nostdinc -Wall -Wextra -Werror -O2 -I kernel
 ASFLAGS := -m32 -ffreestanding -fno-pie -nostdlib -nostdinc
 LDFLAGS := -m elf_i386 -T linker/kernel.ld
 
-KERNEL_OBJS := $(BUILD)/boot.o $(BUILD)/kernel.o
+KERNEL_OBJS := \
+	$(BUILD)/boot.o \
+	$(BUILD)/gdt_flush.o \
+	$(BUILD)/idt_load.o \
+	$(BUILD)/isr.o \
+	$(BUILD)/kernel.o \
+	$(BUILD)/gdt.o \
+	$(BUILD)/idt.o
+
 KERNEL := $(BUILD)/$(TARGET).elf
 ISO := $(BUILD)/$(TARGET).iso
 
@@ -23,7 +31,22 @@ $(BUILD):
 $(BUILD)/boot.o: boot/boot.S | $(BUILD)
 	$(AS) $(ASFLAGS) -c $< -o $@
 
+$(BUILD)/gdt_flush.o: boot/gdt_flush.S | $(BUILD)
+	$(AS) $(ASFLAGS) -c $< -o $@
+
+$(BUILD)/idt_load.o: boot/idt_load.S | $(BUILD)
+	$(AS) $(ASFLAGS) -c $< -o $@
+
+$(BUILD)/isr.o: boot/isr.S | $(BUILD)
+	$(AS) $(ASFLAGS) -c $< -o $@
+
 $(BUILD)/kernel.o: kernel/kernel.c | $(BUILD)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD)/gdt.o: kernel/arch/x86/gdt.c | $(BUILD)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD)/idt.o: kernel/arch/x86/idt.c | $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(KERNEL): $(KERNEL_OBJS) linker/kernel.ld
