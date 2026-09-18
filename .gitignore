@@ -1,0 +1,11 @@
+build/
+*.o
+*.iso
+*.img
+*.bin
+*.elf
+*.map
+compile_commands.json
+.vscode/
+.idea/
+.DS_Store
